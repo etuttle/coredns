@@ -35,6 +35,7 @@ import (
 	_ "github.com/coredns/coredns/plugin/loop"
 	_ "github.com/coredns/coredns/plugin/metadata"
 	_ "github.com/coredns/coredns/plugin/metrics"
+	_ "github.com/coredns/coredns/plugin/nshorizon"
 	_ "github.com/coredns/coredns/plugin/nsid"
 	_ "github.com/coredns/coredns/plugin/pprof"
 	_ "github.com/coredns/coredns/plugin/ready"
