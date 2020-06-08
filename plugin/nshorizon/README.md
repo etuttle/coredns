@@ -8,26 +8,18 @@
 
 This plugin answers queries differently depending on the kubernetes namespace of the dns client.
 
-Say a pod in namespace `my-ns` does a query for `service.internal.example.com`.  If `nshorizon` is
-enabled for the `internal.example.com` zone, and the normal lookup process is about to return
-`NXDOMAIN`, the plugin will step in and attempt to resolve `service` in the `my-ns` namespace.  If
-the service lookup succeeds, a CNAME is returned to the client resolving
-`service.internal.example.com` to `service.my-ns.svc.cluster.local`.
+In an example scenario, `nshorizon` is enabled for zone `internal.example.org`.  A pod in namespace `my-ns` does a query for `service.internal.example.org`.  CoreDNS does the usual lookup process for `service.internal.example.org`.  If a record exists, `nshorizon` will not alter the response; however if the usual lookup returns `NXDOMAIN`, `nslookup` will step in and look for a `service` service in the `my-ns` namespace.  If the service lookup succeeds, a CNAME is returned to the client resolving `service.internal.example.com` to `service.my-ns.svc.cluster.local`.
 
 ## Syntax
-
-**Important:** The POD-MODE must be `pods verified` in the `kubernetes` plugin config.
-**Important:** The `cache` plugin must be disabled for nshorizon to work correctly (see Issues).
 
 ~~~
 nshorizon [ZONE...] @BACKEND-PLUGIN
 ~~~
 
-* **ZONES** zones which *nshorizon* will attempt service lookups for.
-* **BACKEND-PLUGIN** CoreDNS plugin (in @name format) to resolve source IP into namespace.
-
-Currently only @kubernetes is supported.  If a plugin implements the `NsHorizonBackend` interface
-then it can be used.
+* **ZONES** zones which *nshorizon* will resolve for.  **Ensure that the `cache` plugin is not enabled** for the same zones (see Known Issues) 
+* **BACKEND-PLUGIN** CoreDNS plugin (in @name format) which provide source-ip to namespace lookups.
+  Currently @kubernetes is supported, with conditions:
+    * POD-MODE must be `pods verified` in the `kubernetes` plugin config.  See [Metadata](../kubernetes/README.md#metadata) in the `kubernetes` plugin README.
 
 ## Metrics
 
@@ -41,6 +33,4 @@ nshorizon internal.example.com @kubernetes
 
 ## Known Issues
 
-The `cache` plugin appears to cache TTL 0 records.  Even if the TTL is only increased 5 seconds
-(from 0 to 5), it will break split horizon lookups.  Until there is a way to disable the cache
-plugin on a per-zone basis, it is not recommended to cache and nshorizon together.
+The `cache` plugin appears to cache TTL 0 records.  If a record is cached for a zone that nshorizon is resolving, it will cause records to leak across namespaces.
