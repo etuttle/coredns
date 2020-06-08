@@ -6,15 +6,13 @@ import (
 	"github.com/miekg/dns"
 )
 
-// cnamer copied from plugin/authpath/cname.go due to being private
-
-// cnamer will prefix the answer section with a cname that points from original qname to the
-// name of the first RR. It will also update the question section and put original in there.
-func cnamer(m *dns.Msg, original string) {
+// cnamer similar to autopath plugin, but the TTL of the CNAME and the RR are set to 0
+func cnamerZeroTTL(m *dns.Msg, original string) {
 	for _, a := range m.Answer {
 		if strings.EqualFold(original, a.Header().Name) {
 			continue
 		}
+		a.Header().Ttl = 0
 		m.Answer = append(m.Answer, nil)
 		copy(m.Answer[1:], m.Answer)
 		m.Answer[0] = &dns.CNAME{

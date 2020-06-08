@@ -45,8 +45,8 @@ var nsHorionTestCases = []nsHorizonTestCase{
 			Qname: "service.internal.com.", Qtype: dns.TypeA,
 			Rcode: dns.RcodeSuccess,
 			Answer: []dns.RR{
-				test.CNAME("service.internal.com. 3600 IN CNAME service.ns.svc.cluster.local."),
-				test.A("service.ns.svc.cluster.local." + defaultA),
+				test.CNAME("service.internal.com. 0 IN CNAME service.ns.svc.cluster.local."),
+				test.A("service.ns.svc.cluster.local." + zeroTTLA),
 			},
 		},
 	},
@@ -239,6 +239,7 @@ func nextHandler(mm map[string]int, me map[string]int) test.Handler {
 }
 
 const defaultA = " 3600 IN A 127.0.0.53"
+const zeroTTLA = " 0 IN A 127.0.0.53"
 
 var upstreamSoa = func() dns.RR {
 	s, _ := dns.NewRR("internal.com.		1800	IN	SOA	internal.com. internal.com. 1502165581 14400 3600 604800 14400")

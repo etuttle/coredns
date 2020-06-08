@@ -83,7 +83,7 @@ func (nh *NsHorizon) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.
 
 	if nw2.Msg != nil && nw2.Msg.Rcode == dns.RcodeSuccess && len(nw2.Msg.Answer) > 0 {
 		msg := nw2.Msg
-		cnamer(msg, state.QName())
+		cnamerZeroTTL(msg, state.QName())
 		w.WriteMsg(msg)
 		return rcode2, nil
 	} else {
